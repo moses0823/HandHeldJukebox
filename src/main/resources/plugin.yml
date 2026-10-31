@@ -1,9 +1,9 @@
 name: HandHeldJukebox
-version: 1.0.0
+version: 1.1.0
 main: tw.moses.handheldjukebox.main
 api-version: '26.3'
 softdepend: [PlaceholderAPI]
 commands:
   jb:
     description: 管理手持唱片機歌單與播放
-    usage: /jb [play|pause|next|previous|prev]
+    usage: /jb [play|pause|next|previous|prev|volume [0-100]]

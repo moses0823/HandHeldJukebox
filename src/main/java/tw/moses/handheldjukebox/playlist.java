@@ -121,19 +121,25 @@ public final class playlist implements CommandExecutor, TabCompleter, Listener {
 			case "pause" -> pause(player);
 			case "next" -> skip(player, 1);
 			case "previous", "prev" -> skip(player, -1);
-			default -> player.sendMessage("用法：/jb [play|pause|next|previous|prev]");
+			case "volume" -> setVolume(player, args);
+			default -> player.sendMessage("用法：/jb [play|pause|next|previous|prev|volume [0-100]]");
 		}
 		return true;
 	}
 
 	@Override
 	public java.util.List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-		if (args.length != 1) {
-			return java.util.Collections.emptyList();
+		if (args.length == 2 && args[0].equalsIgnoreCase("volume")) {
+			String prefix = args[1];
+			return java.util.List.of("0", "25", "50", "75", "100").stream()
+					.filter(option -> option.startsWith(prefix)).toList();
 		}
-		String prefix = args[0].toLowerCase();
-		return java.util.List.of("play", "pause", "next", "previous", "prev").stream()
-				.filter(option -> option.startsWith(prefix)).toList();
+		if (args.length == 1) {
+			String prefix = args[0].toLowerCase();
+			return java.util.List.of("play", "pause", "next", "previous", "prev", "volume").stream()
+					.filter(option -> option.startsWith(prefix)).toList();
+		}
+		return java.util.Collections.emptyList();
 	}
 
 	@EventHandler
@@ -361,6 +367,42 @@ public final class playlist implements CommandExecutor, TabCompleter, Listener {
 		return item != null && item.getType().name().startsWith("MUSIC_DISC_");
 	}
 
+	private void setVolume(Player player, String[] args) {
+		if (args.length == 1) {
+			player.sendMessage("目前音量：" + getVolume(player.getUniqueId()) + "%。");
+			return;
+		}
+		if (args.length != 2) {
+			player.sendMessage("用法：/jb volume <0-100>");
+			return;
+		}
+
+		int volume;
+		try {
+			volume = Integer.parseInt(args[1]);
+		} catch (NumberFormatException exception) {
+			player.sendMessage("音量必須是 0 到 100 之間的整數。");
+			return;
+		}
+		if (volume < 0 || volume > 100) {
+			player.sendMessage("音量必須是 0 到 100 之間的整數。");
+			return;
+		}
+
+		playlistData.set("volumes." + player.getUniqueId(), volume);
+		savePlaylists();
+		player.sendMessage("音量已設為 " + volume + "%。");
+
+		PlaybackState state = playbackStates.get(player.getUniqueId());
+		if (state != null && !state.paused && isDiscAt(state.playlistKey, state.currentSlot)) {
+			playSlot(player, state.playlistKey, state.currentSlot);
+		}
+	}
+
+	private int getVolume(UUID playerId) {
+		return playlistData.getInt("volumes." + playerId, 100);
+	}
+
 	private void play(Player player) {
 		String key = playlistForCommand(player);
 		if (key == null) {
@@ -447,7 +489,7 @@ public final class playlist implements CommandExecutor, TabCompleter, Listener {
 		state.sound = sound;
 		state.startedAtMillis = System.currentTimeMillis();
 		state.elapsedMillis = 0;
-		player.playSound(player, sound, SoundCategory.RECORDS, 1.0f, 1.0f);
+		player.playSound(player, sound, SoundCategory.RECORDS, getVolume(player.getUniqueId()) / 100.0f, 1.0f);
 		state.advanceTask = Bukkit.getScheduler().runTaskLater(plugin,
 				() -> skip(player, 1), getDurationTicks(disc.getType()));
 		player.sendMessage("正在播放：" + disc.getType().name().replace("MUSIC_DISC_", ""));
