@@ -118,10 +118,10 @@ public final class playlist implements CommandExecutor, TabCompleter, Listener {
 
 		switch (args[0].toLowerCase()) {
 			case "play" -> play(player);
-			case "pulse", "pause" -> pause(player);
+			case "pause" -> pause(player);
 			case "next" -> skip(player, 1);
 			case "previous", "prev" -> skip(player, -1);
-			default -> player.sendMessage("用法：/jb [play|pulse|next|previous|prev]");
+			default -> player.sendMessage("用法：/jb [play|pause|next|previous|prev]");
 		}
 		return true;
 	}
@@ -132,7 +132,7 @@ public final class playlist implements CommandExecutor, TabCompleter, Listener {
 			return java.util.Collections.emptyList();
 		}
 		String prefix = args[0].toLowerCase();
-		return java.util.List.of("play", "pause", "next", "previous", "prev", "pulse").stream()
+		return java.util.List.of("play", "pause", "next", "previous", "prev").stream()
 				.filter(option -> option.startsWith(prefix)).toList();
 	}
 
