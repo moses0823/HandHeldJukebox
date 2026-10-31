@@ -1,0 +1,8 @@
+name: HandHeldJukebox
+version: 1.0.0
+main: tw.moses.handheldjukebox.main
+api-version: '26.3'
+commands:
+  jb:
+    description: 管理手持唱片機歌單與播放
+    usage: /jb [play|pulse|next|previous|pre]
