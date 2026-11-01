@@ -489,7 +489,7 @@ public final class playlist implements CommandExecutor, TabCompleter, Listener {
 		state.sound = sound;
 		state.startedAtMillis = System.currentTimeMillis();
 		state.elapsedMillis = 0;
-		player.playSound(player.getLocation(), sound, SoundCategory.RECORDS,
+		player.playSound(player, sound, SoundCategory.RECORDS,
 				getVolume(player.getUniqueId()) / 100.0f, 1.0f);
 		state.advanceTask = Bukkit.getScheduler().runTaskLater(plugin,
 				() -> skip(player, 1), getDurationTicks(disc.getType()));

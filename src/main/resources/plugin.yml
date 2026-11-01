@@ -1,5 +1,5 @@
 name: HandHeldJukebox
-version: 1.1.1
+version: 1.1.2
 main: tw.moses.handheldjukebox.main
 api-version: '26.3'
 softdepend: [PlaceholderAPI]
